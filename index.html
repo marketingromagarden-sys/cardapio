@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Cardápio do Roma Café Garden">
+<title>Cardápio Roma Café</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=EB+Garamond:ital@1&display=swap">
+<style>
+/* Layout: livro no centro sobre fundo de couro, controles fixos embaixo */
+:root{
+  --leather:#2A1A12;
+  --leather-2:#3D261A;
+  --gold:#D9A24E;
+  --gold-soft:#F3D9A4;
+  --cream:#FCF1E3;
+  --display:'Cinzel',Georgia,serif;
+  --note:'EB Garamond',Georgia,serif;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:radial-gradient(ellipse at 50% 40%,var(--leather-2) 0%,var(--leather) 70%);color:var(--gold-soft);font-family:var(--note);overflow:hidden}
+.app{height:100%;display:flex;flex-direction:column;padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px))}
+.stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding-block:14px 6px}
+#book{transition:transform .5s ease}
+#book .pg{background:var(--cream);box-shadow:0 10px 28px rgba(0,0,0,.45)}
+#book .pg img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;user-select:none}
+@media (prefers-reduced-motion:reduce){#book{transition:none}}
+.bar{flex:none;display:flex;align-items:center;justify-content:center;gap:10px;padding-block:8px 14px;flex-wrap:wrap}
+button,select{font-family:var(--display);font-weight:600;letter-spacing:.08em;font-size:12px;color:var(--gold-soft);background:rgba(0,0,0,.25);border:1px solid rgba(217,162,78,.55);border-radius:999px;padding:9px 14px;cursor:pointer}
+button:hover,select:hover{border-color:var(--gold)}
+button:focus-visible,select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+button:disabled{opacity:.35;cursor:default}
+select{appearance:none;-webkit-appearance:none;padding-right:14px;max-width:200px}
+select option{background:var(--leather);color:var(--gold-soft)}
+.count{font-family:var(--display);font-size:12px;letter-spacing:.1em;min-width:64px;text-align:center}
+.hint{font-style:italic;font-size:13px;opacity:.7;text-align:center;flex-basis:100%}
+.zoom{position:fixed;inset:0;z-index:30;background:rgba(20,10,6,.96);overflow:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top,0px) + 56px) max(12px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 20px) max(12px,env(safe-area-inset-left,0px))}
+.zoom[hidden]{display:none}
+.zoom img{display:block;width:100%;max-width:900px;margin:0 auto;border-radius:4px}
+.zoom .x{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);right:max(12px,env(safe-area-inset-right,0px));z-index:31}
+.load{font-family:var(--display);letter-spacing:.14em;font-size:13px}
+</style>
+
+</head><body style="margin:0">
+<div class="app">
+  <div class="stage"><div id="book"><span class="load">ABRINDO O CARDÁPIO…</span></div></div>
+  <div class="bar">
+    <button id="prev" type="button" aria-label="Página anterior">‹ Voltar</button>
+    <span class="count" id="count">1 / 12</span>
+    <button id="next" type="button" aria-label="Próxima página">Avançar ›</button>
+    <select id="jump" aria-label="Ir para a seção">
+      <option value="">Ir para…</option>
+      <option value="2">Cafés</option>
+      <option value="3">Cafés Especiais</option>
+      <option value="4">Sanduíches e Torradas</option>
+      <option value="5">Salgados e Doces</option>
+      <option value="6">Pratos</option>
+      <option value="7">Bebidas</option>
+      <option value="8">Vinhos e Tábua</option>
+      <option value="9">Empório Roma</option>
+    </select>
+    <button id="zbtn" type="button">Ampliar</button>
+    <span class="hint">arraste o canto da página ou toque nas setas para folhear</span>
+  </div>
+</div>
+<div class="zoom" id="zoom" hidden><button class="x" id="zclose" type="button">Fechar ✕</button><div id="zimgs"></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
+<script>
+(function(){
+  var N=12, imgs=[]; for(var i=1;i<=N;i++) imgs.push('https://cardapio-romacafe.netlify.app/p/p'+(i<10?'0':'')+i+'.jpg');
+  var bookEl=document.getElementById('book'), stage=document.querySelector('.stage');
+  var W=1000,H=1418, pf=null;
+  function size(){
+    var sw=stage.clientWidth, sh=stage.clientHeight-8, two=sw>sh*1.05;
+    var h=Math.min(sh, (two? sw/2 : sw)*H/W); var w=h*W/H;
+    return {w:Math.floor(w),h:Math.floor(h)};
+  }
+  function build(start){
+    var s=size();
+    if(pf){ try{pf.destroy();}catch(e){} bookEl=document.createElement('div'); bookEl.id='book'; stage.innerHTML=''; stage.appendChild(bookEl); }
+    else bookEl.innerHTML='';
+    pf=new St.PageFlip(bookEl,{width:s.w,height:s.h,size:'fixed',showCover:true,usePortrait:true,maxShadowOpacity:.5,mobileScrollSupport:true,flippingTime:700,startPage:start||0});
+    var html=imgs.map(function(src,k){var d=document.createElement('div');d.className='pg';if(k===0||k===N-1)d.setAttribute('data-density','hard');d.innerHTML='<img src="'+src+'" alt="Página '+(k+1)+'" draggable="false">';bookEl.appendChild(d);return d;});
+    pf.loadFromHTML(html);
+    pf.on('flip',upd); pf.on('changeOrientation',upd); upd();
+  }
+  var cnt=document.getElementById('count'), prev=document.getElementById('prev'), next=document.getElementById('next');
+  function cur(){return pf?pf.getCurrentPageIndex():0}
+  function upd(){
+    var i=cur(), port=pf&&pf.getOrientation()==='portrait';
+    var label;
+    if(port||i===0||i===N-1) label=(i+1)+' / '+N; else { var a=i%2?i:i-1; label=(a+1)+'–'+(a+2)+' / '+N; }
+    cnt.textContent=label; prev.disabled=i<=0; next.disabled=i>=N-1;
+    var shift=0; if(!port){ if(i===0) shift=-25; else if(i===N-1) shift=25; }
+    bookEl.style.transform='translateX('+shift+'%)';
+  }
+  prev.onclick=function(){pf&&pf.flipPrev()};
+  next.onclick=function(){pf&&pf.flipNext()};
+  document.getElementById('jump').onchange=function(){var v=this.value; if(v!==''&&pf){pf.flip(parseInt(v,10));} this.value='';};
+  document.addEventListener('keydown',function(e){if(!pf)return; if(e.key==='ArrowRight')pf.flipNext(); if(e.key==='ArrowLeft')pf.flipPrev(); if(e.key==='Escape')closeZ();});
+  var z=document.getElementById('zoom'), zi=document.getElementById('zimgs');
+  function closeZ(){z.hidden=true}
+  document.getElementById('zclose').onclick=closeZ;
+  document.getElementById('zbtn').onclick=function(){
+    var i=cur(), port=pf&&pf.getOrientation()==='portrait', list=[i];
+    if(!port&&i>0&&i<N-1){var a=i%2?i:i-1; list=[a,a+1];}
+    zi.innerHTML=list.map(function(k){return '<img src="'+imgs[k]+'" alt="Página '+(k+1)+'">'}).join('<div style="height:12px"></div>');
+    z.hidden=false; z.scrollTop=0;
+  };
+  function start(){ if(!window.St){ bookEl.innerHTML='<span class="load">Não foi possível carregar o efeito de folhear.</span>'; return;} build(0); }
+  var t; window.addEventListener('resize',function(){clearTimeout(t);t=setTimeout(function(){build(cur())},250)});
+  start();
+})();
+</script>
+
+</body></html>
