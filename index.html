@@ -52,10 +52,11 @@ select option{background:var(--leather);color:var(--gold-soft)}
       <option value="3">Cafés Especiais</option>
       <option value="4">Sanduíches e Torradas</option>
       <option value="5">Salgados e Doces</option>
-      <option value="6">Pratos</option>
-      <option value="7">Bebidas</option>
-      <option value="8">Vinhos e Tábua</option>
-      <option value="9">Empório Roma</option>
+      <option value="6">Açaí</option>
+      <option value="7">Pratos</option>
+      <option value="8">Bebidas</option>
+      <option value="9">Vinhos e Tábua</option>
+      <option value="10">Empório Roma</option>
     </select>
     <button id="zbtn" type="button">Ampliar</button>
     <span class="hint">arraste o canto da página ou toque nas setas para folhear</span>
@@ -66,7 +67,7 @@ select option{background:var(--leather);color:var(--gold-soft)}
 <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
 <script>
 (function(){
-  var N=12, imgs=[]; for(var i=1;i<=N;i++) imgs.push('https://cardapio-romacafe.netlify.app/p/p'+(i<10?'0':'')+i+'.jpg');
+  var N=12, imgs=[]; for(var i=1;i<=N;i++) imgs.push('https://cardapio-romacafe.netlify.app/p/p'+(i<10?'0':'')+i+'.jpg?v=3');
   var bookEl=document.getElementById('book'), stage=document.querySelector('.stage');
   var W=1000,H=1418, pf=null;
   function size(){
